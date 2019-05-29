@@ -63,16 +63,15 @@ def main(args):
                            lr=args.lr)
 
     print("Starting training")
-    train(args, model, optimizer, train_loader, val_loader)
+    # train(args, model, optimizer, train_loader, val_loader)
+    validation(model, val_loader)
 
 
 def train(args, model, optimizer, train_loader, val_loader):
+    model.train()
     for i in range(args.epochs):
         for images, labels in train_loader:
-            images, labels = Variable(images), Variable(labels)
-
-            if args.cuda:
-                images, labels = image.cuda(), labels.cuda()
+            images, labels = images.cuda(), labels.cuda()
 
             optimizer.zero_grad()
 
@@ -83,7 +82,6 @@ def train(args, model, optimizer, train_loader, val_loader):
             optimizer.step()
 
         print("Epoch: %d/%d" % (i, args.epochs))
-        validation(model, train_loader)
         validation(model, val_loader)
 
 
@@ -91,11 +89,11 @@ def validation(model, loader):
     model.eval()
     validation_loss = 0
     correct = 0
-    for images, labels in loader:
-        images, labels = Variable(images, volatile=True), Variable(labels)
 
-        if args.cuda:
-            images, labels = images.cuda(), labels.cuda()
+
+    for images, labels in loader:
+        images = images.cuda()
+        labels = labels.cuda()
 
         output = model(images)
         validation_loss += F.nll_loss(output, labels,
@@ -104,6 +102,7 @@ def validation(model, loader):
         correct += pred.eq(labels.data.view_as(pred)).cpu().sum()
 
     validation_loss /= len(loader.dataset)
+
     print('\n' + loader_type +
           ' set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'
           .format(validation_loss, correct, len(loader.dataset),

@@ -18,13 +18,10 @@ def move_data(folder, data_folder):
     if not os.path.isdir(val_path):
         os.makedirs(val_path)
 
-    for dir in os.listdir(train_path):
-        if os.path.isdir(os.path.join(train_path, dir)):
-            os.makedirs(os.path.join(val_path, dir))
-            k = random.choice(os.listdir(os.path.join(train_path, dir)))
-            os.rename(os.path.join(train_path, dir, k),
-                      os.path.join(val_path, dir, k))
-
+    dir = os.listdir(train_path)
+    for i in range(20):
+        tt = random.choice(dir)
+        shutil.move(os.path.join(train_path, tt), val_path)
 
 if __name__ == '__main__':
     move_data(sys.argv[1], sys.argv[2])
